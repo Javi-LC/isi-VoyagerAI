@@ -22,7 +22,7 @@
 ### Flujo de datos
 
 1. El usuario rellena el formulario en el frontend (destino, fechas, intereses).
-2. El frontend envía un `POST /api/plan` al backend.
+2. El frontend envía un `POST /api/v1/plan` al backend.
 3. El backend ejecuta **en paralelo** (asyncio):
    - Consulta a **Open-Meteo** → datos de clima para las fechas indicadas.
    - Consulta a **NewsAPI** → noticias recientes sobre el destino.
@@ -84,7 +84,9 @@
 
 ### 5.1 Contrato de API
 
-#### `POST /api/plan`
+> **Convención ISI:** Todas las rutas del backend deben usar prefijo versionado `/api/v1/...` para mantener compatibilidad hacia atrás.
+
+#### `POST /api/v1/plan`
 
 **Request Body:**
 ```json
@@ -164,7 +166,7 @@
 }
 ```
 
-#### `GET /api/health`
+#### `GET /api/v1/health`
 
 Comprobación de estado del backend.
 
