@@ -78,16 +78,17 @@ Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON con esta estructura:
 
 Genera al menos 3 actividades. RESPONDE ÚNICAMENTE CON EL JSON:"""
 
-    print("\n  📤 Enviando prompt a Gemini 2.0 Flash...")
-    print(f"  Modelo: gemini-2.0-flash")
+    print("\n  📤 Enviando prompt a Gemini 2.5 Flash Lite...")
+    print(f"  Modelo: gemini-2.5-flash-lite")
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
             config=genai.types.GenerateContentConfig(
                 temperature=0.7,
                 response_mime_type="application/json",
+                thinking_config=genai.types.ThinkingConfig(thinking_budget=0),
             ),
         )
     except Exception as e:
