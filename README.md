@@ -49,3 +49,35 @@ La forma más sencilla y recomendada de levantar todo el ecosistema es utilizand
 git clone <url-del-repo> voyager-ai
 cd voyager-ai
 git checkout sprint2
+```
+
+## 🏗️ Arquitectura y Flujo de Datos
+A continuación se detalla el flujo de ejecución principal al solicitar un nuevo plan de viaje (`POST /api/plan`), demostrando la orquestación concurrente del backend y la comunicación con la IA:
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Frontend as Frontend (React/Vite)
+    participant Backend as Backend (FastAPI)
+    participant Externos as APIs Externas (Open-Meteo / NewsAPI)
+    participant Gemini as Gemini 2.0 Flash
+
+    Usuario->>Frontend: Rellena formulario (destino, fechas, intereses)
+    Frontend->>Backend: POST /api/plan (JSON)
+    
+    note over Backend: Ejecución Concurrente (asyncio.gather)
+    par Fetch Clima
+        Backend->>Externos: Petición Open-Meteo
+    and Fetch Noticias
+        Backend->>Externos: Petición NewsAPI
+    end
+    Externos-->>Backend: Datos brutos
+    
+    Backend->>Backend: Orquestador: Construye Prompt contextualizado
+    Backend->>Gemini: Prompt forzando salida JSON
+    Gemini-->>Backend: Devuelve itinerario en JSON estructurado
+    Backend->>Backend: Valida JSON (Pydantic Models)
+    Backend-->>Frontend: 200 OK (TravelResponse)
+    
+    Frontend->>Frontend: Renderiza Dashboard (Tarjetas, Timeline, Alertas)
+    Frontend-->>Usuario: Muestra plan de viaje visual
