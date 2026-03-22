@@ -135,6 +135,4 @@ Vite iniciará un servidor local en `http://localhost:5173/`.
 ## 6. Comprobación
 
 - Accede a `http://localhost:5173/` (o puerto que Vite asigne)
-- Revisa que aparecen las tarjetas de "Noticias Relevantes" en la vista de itinerario.
-- Si quieres ampliar, conecta `fetch('/api/v1/plan')` a backend real usando el contrato en `types.ts`.
 
