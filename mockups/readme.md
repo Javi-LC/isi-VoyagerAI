@@ -1,43 +1,35 @@
 # Entorno y Configuración: Voyager AI (Travel App)
 
-Este proyecto es una aplicación React construida con Vite, TypeScript y Tailwind CSS. A continuación, se detallan todos los pasos y archivos necesarios para poder ejecutar `npm run dev` exitosamente.
+Este proyecto es una aplicación React construida con Vite, TypeScript y Tailwind CSS. 
 
-## 1. Inicialización y Dependencias
+## 1. Ejecución rápida (Primera vez)
 
-Asegúrate de estar en la raíz del proyecto. A continuación, ejecuta los siguientes comandos uno tras otro en la terminal para instalar todo y levantar la app:
+Clona el repositorio y ejecuta desde la carpeta `mockups/`:
 
 ```bash
 npm install
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
 npm run dev
 ```
 
-Modifica el archivo `package.json` para agregar los scripts de ejecución. Debería quedar algo así:
+¡Listo! Vite iniciará en `http://localhost:5173/` (o el siguiente puerto disponible).
 
-```json
-{
-  "name": "voyager-ai",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  }
+## 2. Archivos de configuración (Ya están en el repo)
+
+Los siguientes archivos ya están incluidos y configurados:
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
 }
-```
 
-## 2. Configuración de Tailwind CSS
-
-Ejecuta el siguiente comando para generar los archivos de configuración de Tailwind y PostCSS:
-
-```bash
-npx tailwindcss init -p
-```
-
-Esto creará un archivo `tailwind.config.js`. Debes editarlo para que Tailwind escanee tus archivos `.tsx`:
-
-**`tailwind.config.js`**
+**`tailwind.config.js`** (Ya presente)
 ```javascript
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -52,9 +44,7 @@ export default {
 }
 ```
 
-Crea o actualiza un archivo de estilos globales donde Tailwind inyectará sus clases:
-
-**`index.css`**
+**`index.css`** (Ya presente)
 ```css
 @tailwind base;
 @tailwind components;
@@ -67,11 +57,33 @@ body {
 }
 ```
 
+**`vite.config.ts`** (Ya presente)
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})
+```
+
+**`package.json`** (Scripts ya configurados)
+```json
+{
+  "name": "voyager-ai",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  }
+}
+```
+
 ## 3. Archivos base del entorno
 
 Necesitas el HTML principal que carga la aplicación y la configuración de Vite.
 
-**`index.html`**
+**`index.html`** (Ya presente)
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -82,26 +94,14 @@ Necesitas el HTML principal que carga la aplicación y la configuración de Vite
   </head>
   <body>
     <div id="root"></div>
-    <!-- Carga el punto de entrada de la app -->
     <script type="module" src="/main.tsx"></script>
   </body>
 </html>
 ```
 
-**`vite.config.ts`**
-```typescript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+Y por último, asegúrate de que el archivo CSS se importa en tu punto de entrada principal (`main.tsx`):
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-})
-```
-
-Y por último, asegúrate de importar el archivo CSS en tu punto de entrada principal (`main.tsx`):
-
-**`main.tsx`** (Solo añade la importación del CSS en la primera línea)
+**`main.tsx`** (Ya presente)
 ```typescript
 import './index.css';
 import React from 'react';
@@ -112,13 +112,13 @@ import TravelApp from './TravelApp';
 
 ## 4. Ejecutar el proyecto
 
-Una vez que tengas todos estos archivos configurados, simplemente levanta el servidor de desarrollo:
+Una vez clonado y con deps instaladas:
 
 ```bash
 npm run dev
 ```
 
-Vite iniciará un servidor local rápido, normalmente en `http://localhost:5173/`.
+Vite iniciará un servidor local en `http://localhost:5173/`.
 
 ## 5. Funcionalidades ya desarrolladas
 
@@ -134,6 +134,7 @@ Vite iniciará un servidor local rápido, normalmente en `http://localhost:5173/
 
 ## 6. Comprobación
 
-- Accede a `http://localhost:5176/` (Vite eligió el puerto disponible)
+- Accede a `http://localhost:5173/` (o puerto que Vite asigne)
 - Revisa que aparecen las tarjetas de "Noticias Relevantes" en la vista de itinerario.
 - Si quieres ampliar, conecta `fetch('/api/v1/plan')` a backend real usando el contrato en `types.ts`.
+
