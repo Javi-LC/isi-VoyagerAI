@@ -130,6 +130,31 @@ async def test_newsapi():
         print(f"  ❌ Error: {data.get('message', 'Desconocido')}")
 
 
+async def test_geocoding_invalid():
+    """Prueba 1d: Geocodificación de un destino inexistente."""
+    print("\n" + "=" * 60)
+    print("🌍 PRUEBA 1d: Geocodificación Inválida (Open-Meteo)")
+    print("=" * 60)
+
+    destino_invalido = "CiudadFalsaInexistente123"
+    async with httpx.AsyncClient(timeout=10) as client:
+        resp = await client.get(GEOCODING_URL, params={
+            "name": destino_invalido,
+            "count": 1,
+            "language": "es",
+            "format": "json",
+        })
+
+    print(f"  Status: {resp.status_code}")
+    data = resp.json()
+    results = data.get("results", [])
+
+    if not results:
+        print(f"  ✅ Comportamiento esperado: No se encontraron resultados para '{destino_invalido}'.")
+    else:
+        print(f"  ❌ Fallo: Se encontraron resultados inesperados para '{destino_invalido}'.")
+
+
 async def main():
     print(f"\n{'#' * 60}")
     print(f"  Voyager AI — PoC 1: Prueba de APIs de datos")
@@ -143,6 +168,7 @@ async def main():
         await test_weather(lat, lon)
 
     await test_newsapi()
+    await test_geocoding_invalid()
 
     print(f"\n{'#' * 60}")
     print("  ✅ PoC 1 finalizada.")
