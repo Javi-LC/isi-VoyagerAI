@@ -136,3 +136,18 @@ Vite iniciará un servidor local en `http://localhost:5173/`.
 
 - Accede a `http://localhost:5173/` (o puerto que Vite asigne)
 
+## 7. Preview
+
+- Inicio: 
+
+<img width="950" height="450" alt="image" src="https://github.com/user-attachments/assets/92699b5c-528e-413b-b4cf-11771f50bcb4" />
+
+- Formulario:
+
+<img width="950" height="450" alt="image" src="https://github.com/user-attachments/assets/6ba219c1-d8f1-4e0a-b6b9-113e2b850b56" />
+
+- Planificación Viaje:
+
+<img width="950" height="450" alt="image" src="https://github.com/user-attachments/assets/d5f42fdb-9843-4209-8397-54480a8872aa" />
+
+<img width="950" height="454" alt="image" src="https://github.com/user-attachments/assets/bde2e0e5-8a85-4c69-b380-adacac347482" />
