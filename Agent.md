@@ -2,15 +2,25 @@
 
 > **Proyecto:** Voyager AI  
 > **Equipo:** Javier López Cabrera (Backend) · Adrián Alameda Alcaide (Frontend/Testing) · Rubén Calzado Chacón (Frontend/Testing)  
-> **Sprint:** 2 — Arquitectura, Prototipos y Validación Tecnológica  
-> **Fecha:** Marzo 2026  
-> **Versión:** 1.0
+> **Sprint:** 3 — Implementación de Interfaz y Lógica Dinámica  
+> **Fecha:** Abril 2026  
+> **Versión:** 2.0
 
 ---
 
 ## 1. Descripción del Proyecto
 
-**Voyager AI** es una aplicación web de planificación inteligente de viajes. El usuario introduce un destino, un rango de fechas y sus intereses personales; el sistema orquesta múltiples fuentes de datos externas (clima, noticias, geolocalización) y las envía como contexto enriquecido a un modelo de razonamiento (Google Gemini 2.0 Flash), que devuelve un itinerario completo y estructurado en JSON. La interfaz renderiza esa respuesta como un *dashboard* visual con tarjetas dinámicas, línea de tiempo por días y alertas contextuales.
+**Voyager AI** es una aplicación web de planificación inteligente de viajes. El usuario introduce un origen, un destino, un rango de fechas y sus intereses personales; el sistema orquesta múltiples fuentes de datos externas (clima, noticias, geolocalización) y las envía como contexto enriquecido a un modelo de razonamiento (Google Gemini 2.0 Flash), que devuelve un itinerario completo y estructurado en JSON. La interfaz renderiza esa respuesta como un *dashboard* visual con tarjetas dinámicas, línea de tiempo por días y alertas contextuales.
+
+### 1.1 Avances Actuales (Sprint 3)
+
+Actualmente, el **Frontend** se ha implementado utilizando una arquitectura React componentizada (bajo `/frontend/src/components`) con las siguientes características:
+*   Diseño basado en utilidades fluidas con Tailwind CSS y *Glassmorphism*.
+*   Componentes integrados: `LandingSection` (inicio), `TripPlanner` (formulario con origen y destino), e `ItineraryView` (dashboard visual).
+*   Navegación nativa con `History API` para volver entre vistas usando el historial del navegador.
+*   Modales de Política de Privacidad y Términos integrados sobre React Portals en el Footer.
+
+**Importante sobre la integración Backend:** Aunque actualmente la vista del itinerario renderiza datos estáticos (mock) a través del estado de React, el objetivo explícito es que para cada planificación, el frontend pase de este estado estático y llame dinámicamente al endpoint del backend (`POST /api/v1/plan`). Cada iteración del itinerario ***debe generarse desde cero y en tiempo real*** con la información real y estructurada provista por Gemini 2.0 Flash, inyectada en el `ItineraryView`. No es válido en producción el uso del JSON simulado actual.
 
 ---
 
