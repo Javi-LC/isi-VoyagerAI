@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from 'react';
-import { Header } from './Header';
-import { LandingSection } from './LandingSection';
-import { TripPlanner } from './TripPlanner';
-import { ItineraryView } from './ItineraryView';
-import { Footer } from './Footer';
-import { ActiveSection, Preferences, ItineraryData } from './types';
+import { Header } from './components/Header';
+import { LandingSection } from './components/LandingSection';
+import { TripPlanner } from './components/TripPlanner';
+import { ItineraryView } from './components/ItineraryView';
+import { Footer } from './components/Footer';
+import { ActiveSection, Preferences, ItineraryData } from './types/travel';
 
 export default function TravelApp() {
   const [activeSection, setActiveSection] = useState<ActiveSection>('landing');

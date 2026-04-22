@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Bell, FileText, AlertTriangle, PartyPopper, CloudRain, Sun, Bot } from 'lucide-react';
-import { ItineraryData } from './types';
+import { ItineraryData } from '../types/travel';
 
 interface ItineraryViewProps {
   itineraryData: ItineraryData;

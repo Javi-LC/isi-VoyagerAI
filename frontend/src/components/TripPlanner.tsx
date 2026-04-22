@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Bot, DollarSign, Shield, RefreshCw, FileText, Camera, Utensils, Building, Palette, Mountain, Wine, CloudRain, AlertTriangle } from 'lucide-react';
-import { Preferences } from './types';
+import { Preferences } from '../types/travel';
 
 interface TripPlannerProps {
   destination: string;
