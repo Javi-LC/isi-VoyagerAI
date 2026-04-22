@@ -10,7 +10,7 @@
 
 ## 1. Descripción del Proyecto
 
-**Voyager AI** es una aplicación web de planificación inteligente de viajes. El usuario introduce un origen, un destino, un rango de fechas y sus intereses personales; el sistema orquesta múltiples fuentes de datos externas (clima, noticias, geolocalización) y las envía como contexto enriquecido a un modelo de razonamiento (Google Gemini 2.0 Flash), que devuelve un itinerario completo y estructurado en JSON. La interfaz renderiza esa respuesta como un *dashboard* visual con tarjetas dinámicas, línea de tiempo por días y alertas contextuales.
+**Voyager AI** es una aplicación web de planificación inteligente de viajes. El usuario introduce un origen, un destino, un rango de fechas y sus intereses personales; el sistema orquesta múltiples fuentes de datos externas (clima, noticias, geolocalización) y las envía como contexto enriquecido a un modelo de razonamiento (Google Gemini 2.5 Flash), que devuelve un itinerario completo y estructurado en JSON. La interfaz renderiza esa respuesta como un *dashboard* visual con tarjetas dinámicas, línea de tiempo por días y alertas contextuales.
 
 ### 1.1 Avances Actuales (Sprint 3)
 
@@ -20,7 +20,13 @@ Actualmente, el **Frontend** se ha implementado utilizando una arquitectura Reac
 *   Navegación nativa con `History API` para volver entre vistas usando el historial del navegador.
 *   Modales de Política de Privacidad y Términos integrados sobre React Portals en el Footer.
 
-**Importante sobre la integración Backend:** Aunque actualmente la vista del itinerario renderiza datos estáticos (mock) a través del estado de React, el objetivo explícito es que para cada planificación, el frontend pase de este estado estático y llame dinámicamente al endpoint del backend (`POST /api/v1/plan`). Cada iteración del itinerario ***debe generarse desde cero y en tiempo real*** con la información real y estructurada provista por Gemini 2.0 Flash, inyectada en el `ItineraryView`. No es válido en producción el uso del JSON simulado actual.
+**Integración Frontend-Backend (Estado actual):** Por decisión de diseño para prototipado rápido, la vista del itinerario del frontend renderiza temporalmente datos estáticos (mock) a través del estado de React y la conexión API está deshabilitada en la interfaz gráfica.
+
+Por el lado del **Backend**, se ha completado el 100% de la lógica pesada:
+*   **Orquestación Async:** Llamadas concurrentes funcionales a Open-Meteo y NewsAPI.
+*   **Gemini 2.5:** Integración exitosa forzando JSON estructurado (solucionados bugs de la librería asíncrona de Google y migrado al modelo 2.5 por restricciones de cuota).
+*   **Persistencia (Nuevo):** Implementación de base de datos **SQLite** mediante **SQLAlchemy**. Todos los viajes generados se interceptan y guardan con su JSON completo en la tabla `trips` para formar un historial de uso.
+*   El backend y la BD están testeados y 100% accesibles a través de Swagger UI.
 
 ---
 
@@ -36,7 +42,7 @@ Actualmente, el **Frontend** se ha implementado utilizando una arquitectura Reac
 3. El backend ejecuta **en paralelo** (asyncio):
    - Consulta a **Open-Meteo** → datos de clima para las fechas indicadas.
    - Consulta a **NewsAPI** → noticias recientes sobre el destino.
-4. Con los datos recopilados, el backend construye un **prompt contextualizado** y lo envía a **Gemini 2.0 Flash**, forzando salida JSON.
+4. Con los datos recopilados, el backend construye un **prompt contextualizado** y lo envía a **Gemini 2.5 Flash**, forzando salida JSON.
 5. El backend valida el JSON de Gemini, lo enriquece si es necesario y lo devuelve al frontend.
 6. El frontend renderiza el JSON en un dashboard con tarjetas, timeline y alertas.
 
@@ -51,8 +57,9 @@ Actualmente, el **Frontend** se ha implementado utilizando una arquitectura Reac
 | **Componentes UI** | shadcn/ui + Radix UI | Componentes accesibles, sin opinión visual, personalizables |
 | **Iconos** | Lucide React | Vectores SVG limpios — prohibido usar emoticonos de texto plano |
 | **Backend** | Python 3.12 + FastAPI | Async nativo, tipado fuerte, documentación OpenAPI automática |
+| **Base de Datos** | SQLite + SQLAlchemy | Persistencia local ligera para guardar el historial de viajes sin contenedores extra |
 | **HTTP Client** | httpx (async) | Llamadas concurrentes a APIs externas |
-| **IA** | Google Gemini 2.0 Flash | Motor de razonamiento con salida JSON forzada |
+| **IA** | Google Gemini 2.5 Flash | Motor de razonamiento con salida JSON forzada |
 | **Clima** | Open-Meteo API | Gratuita, sin key, datos horarios de previsión |
 | **Noticias** | NewsAPI.org | Noticias por keyword/localización, requiere API key gratuita |
 | **Contenedores** | Docker + Docker Compose | Despliegue reproducible: `docker-compose up -d` |
@@ -192,6 +199,27 @@ Comprobación de estado del backend.
 }
 ```
 
+#### `GET /api/v1/trips`
+
+Recupera el historial de viajes almacenados en la base de datos (con paginación `skip` y `limit`).
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "destino": "Berlín, Alemania",
+    "fecha_inicio": "2026-03-25",
+    "fecha_fin": "2026-03-27",
+    "fecha_creacion": "2026-04-22T18:30:00.000Z"
+  }
+]
+```
+
+#### `GET /api/v1/trips/{trip_id}`
+
+Recupera el JSON completo de un viaje específico por su ID. Devuelve el mismo esquema que el `POST /api/v1/plan`.
+
 ### 5.2 Modelos de datos internos (Backend — Pydantic)
 
 ```python
@@ -311,7 +339,7 @@ interface TravelResponse {
 |-----|----------|------|--------|-------|
 | **Open-Meteo** | `https://api.open-meteo.com/v1/forecast` | Ninguna (gratuita) | ✅ Operativa | Sin límite de rate. Devuelve previsión horaria hasta 16 días. |
 | **NewsAPI** | `https://newsapi.org/v2/everything` | API Key (gratuita) | ✅ Operativa | Plan gratuito: 100 req/día, noticias hasta 1 mes atrás. Suficiente para prototipo. |
-| **Gemini 2.0 Flash** | `https://generativelanguage.googleapis.com/v1beta/` | API Key (Google AI Studio) | ✅ Operativa | Requiere key obtenida en https://aistudio.google.com/apikey. Tier gratuito: 15 RPM / 1M TPM. |
+| **Gemini 2.5 Flash** | `https://generativelanguage.googleapis.com/v1beta/` | API Key (Google AI Studio) | ✅ Operativa | Requiere key obtenida en https://aistudio.google.com/apikey. Migrado a `gemini-2.5-flash` ya que `2.0-flash` da error de cuota (limit: 0) en cuentas nuevas gratuitas. |
 | **Google Maps Geocoding** | `https://maps.googleapis.com/maps/api/geocode/json` | API Key (Google Cloud) | ⚠️ Condicional | Requiere billing habilitado en Google Cloud. Se usa Open-Meteo Geocoding como alternativa gratuita. |
 
 > **Nota sobre Google Maps:** La API de Geocoding de Google requiere una cuenta de facturación activa, aunque el free tier cubre el uso de prototipo. Como alternativa sin coste, se utiliza el endpoint de geocodificación de Open-Meteo (`https://geocoding-api.open-meteo.com/v1/search`) que devuelve coordenadas suficientes para nuestro caso de uso.
@@ -408,9 +436,12 @@ voyager-ai/
 ├── backend/
 │   ├── Dockerfile
 │   ├── requirements.txt
+│   ├── voyager.db              # (Generado) Base de datos SQLite
 │   └── app/
 │       ├── main.py             # Punto de entrada FastAPI
 │       ├── config.py           # Carga de variables de entorno
+│       ├── database.py         # Configuración de SQLite y SQLAlchemy
+│       ├── db_models.py        # Esquemas ORM de la base de datos
 │       ├── models.py           # Modelos Pydantic (request/response)
 │       ├── services/
 │       │   ├── weather.py      # Cliente Open-Meteo
@@ -418,7 +449,7 @@ voyager-ai/
 │       │   ├── geocoding.py    # Geocodificación (Open-Meteo)
 │       │   └── gemini.py       # Cliente Gemini + Prompt Builder
 │       └── routers/
-│           └── planner.py      # Endpoints /api/plan, /api/health
+│           └── planner.py      # Endpoints /api/plan, /api/trips, /api/health
 │
 ├── frontend/
 │   ├── Dockerfile
