@@ -22,7 +22,7 @@ export function Footer() {
             </div>
             <div>
               <h4 className="m-0 text-xl font-bold text-slate-800">Voyager AI</h4>
-              <p className="text-sm text-slate-500 mt-1">Sprint 3 - Arquitectura & Prototipos</p>
+              <p className="text-sm text-slate-500 mt-1">Tu próxima experiencia, diseñado por Inteligencia Artificial.</p>
             </div>
           </div>
           
