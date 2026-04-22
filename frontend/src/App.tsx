@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { LandingSection } from './components/LandingSection';
 import { TripPlanner } from './components/TripPlanner';
@@ -20,6 +20,39 @@ export default function TravelApp() {
   });
   const [showItinerary, setShowItinerary] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
+
+  const handleSectionChange = useCallback((section: ActiveSection) => {
+    window.history.pushState({ section }, '', `#${section}`);
+    setActiveSection(section);
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.section) {
+        setActiveSection(event.state.section);
+      } else {
+        const hash = window.location.hash.replace('#', '') as ActiveSection;
+        if (['landing', 'planner', 'itinerary'].includes(hash)) {
+          setActiveSection(hash);
+        } else {
+          setActiveSection('landing');
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    // Configuración inicial al cargar la página
+    if (!window.history.state) {
+      const hash = window.location.hash.replace('#', '') as ActiveSection;
+      const initialSection = ['landing', 'planner', 'itinerary'].includes(hash) ? hash : 'landing';
+      window.history.replaceState({ section: initialSection }, '', `#${initialSection}`);
+      setActiveSection(initialSection);
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const [itineraryData] = useState<ItineraryData>({
     resumen: {
       destino: 'Barcelona, España',
@@ -135,7 +168,11 @@ export default function TravelApp() {
 
   const handleGenerateItinerary = () => {
     setShowItinerary(true);
-    setActiveSection('itinerary');
+    handleSectionChange('itinerary');
+  };
+
+  const handleBackToPlanner = () => {
+    handleSectionChange('planner');
   };
 
   const handleToggleAlerts = () => {
@@ -146,11 +183,11 @@ export default function TravelApp() {
     <div className="p-0 m-0 min-h-screen bg-gray-50">
       <Header
         activeSection={activeSection}
-        onSectionChange={setActiveSection}
+        onSectionChange={handleSectionChange}
       />
 
       {activeSection === 'landing' && (
-        <LandingSection onSectionChange={setActiveSection} />
+        <LandingSection onSectionChange={handleSectionChange} />
       )}
 
       {activeSection === 'planner' && (
@@ -176,6 +213,7 @@ export default function TravelApp() {
           itineraryData={itineraryData}
           showAlerts={showAlerts}
           onToggleAlerts={handleToggleAlerts}
+          onBack={handleBackToPlanner}
         />
       )}
 

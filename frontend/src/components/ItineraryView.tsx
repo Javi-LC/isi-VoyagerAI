@@ -1,18 +1,28 @@
 "use client";
 import React from 'react';
-import { Bell, FileText, AlertTriangle, PartyPopper, CloudRain, Sun, Bot } from 'lucide-react';
+import { Bell, FileText, AlertTriangle, PartyPopper, ArrowLeft, Sun, Bot } from 'lucide-react';
 import { ItineraryData } from '../types/travel';
 
 interface ItineraryViewProps {
   itineraryData: ItineraryData;
   showAlerts: boolean;
   onToggleAlerts: () => void;
+  onBack: () => void;
 }
 
-export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts }: ItineraryViewProps) {
+export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts, onBack }: ItineraryViewProps) {
   return (
     <section className="px-6 py-16 bg-gray-50 min-h-[calc(100vh_-_80px)] backdrop-blur-sm bg-opacity-80">
       <div className="mx-auto my-0 max-w-[1200px]">
+        
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 mb-8 px-4 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors font-medium cursor-pointer border-none"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a planificar viaje
+        </button>
+
         <div className="flex justify-between items-center mb-8 max-sm:flex-col max-sm:gap-4 max-sm:items-start">
           <div>
             <h2 className="m-0 mb-2 text-4xl font-bold text-zinc-900">
