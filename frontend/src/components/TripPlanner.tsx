@@ -4,10 +4,12 @@ import { Bot, DollarSign, Shield, RefreshCw, FileText, Camera, Utensils, Buildin
 import { Preferences } from '../types/travel';
 
 interface TripPlannerProps {
+  origin: string;
   destination: string;
   startDate: string;
   endDate: string;
   preferences: Preferences;
+  onOriginChange: (value: string) => void;
   onDestinationChange: (value: string) => void;
   onStartDateChange: (value: string) => void;
   onEndDateChange: (value: string) => void;
@@ -18,10 +20,12 @@ interface TripPlannerProps {
 }
 
 export function TripPlanner({
+  origin,
   destination,
   startDate,
   endDate,
   preferences,
+  onOriginChange,
   onDestinationChange,
   onStartDateChange,
   onEndDateChange,
@@ -37,21 +41,35 @@ export function TripPlanner({
           Plan Your Perfect Trip
         </h2>
         <p className="mb-10 text-base text-stone-500">
-          Tell us about your destination and preferences, and our AI will
+          Tell us about your origin, destination and preferences, and our AI will
           create a personalized itinerary
         </p>
 
-        <div className="mb-8">
-          <label className="block mb-2 text-sm font-semibold text-zinc-800">
-            Destination
-          </label>
-          <input
-            className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
-            type="text"
-            placeholder="e.g., Barcelona, Spain"
-            value={destination}
-            onChange={(e) => onDestinationChange(e.target.value)}
-          />
+        <div className="grid gap-5 mb-8 grid-cols-[1fr_1fr] max-sm:grid-cols-[1fr]">
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-zinc-800">
+              Origin
+            </label>
+            <input
+              className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
+              type="text"
+              placeholder="e.g., Madrid, Spain"
+              value={origin}
+              onChange={(e) => onOriginChange(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-zinc-800">
+              Destination
+            </label>
+            <input
+              className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
+              type="text"
+              placeholder="e.g., Barcelona, Spain"
+              value={destination}
+              onChange={(e) => onDestinationChange(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="grid gap-5 mb-8 grid-cols-[1fr_1fr] max-sm:grid-cols-[1fr]">

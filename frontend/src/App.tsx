@@ -9,6 +9,7 @@ import { ActiveSection, Preferences, ItineraryData } from './types/travel';
 
 export default function TravelApp() {
   const [activeSection, setActiveSection] = useState<ActiveSection>('landing');
+  const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -154,6 +155,8 @@ export default function TravelApp() {
 
       {activeSection === 'planner' && (
         <TripPlanner
+          origin={origin}
+          onOriginChange={setOrigin}
           destination={destination}
           startDate={startDate}
           endDate={endDate}
