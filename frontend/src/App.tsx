@@ -6,6 +6,7 @@ import { TripPlanner } from './components/TripPlanner';
 import { ItineraryView } from './components/ItineraryView';
 import { Footer } from './components/Footer';
 import { ActiveSection, Preferences, ItineraryData } from './types/travel';
+import { generateTripPlan } from './lib/api';
 
 export default function TravelApp() {
   const [activeSection, setActiveSection] = useState<ActiveSection>('landing');
@@ -20,6 +21,9 @@ export default function TravelApp() {
   });
   const [showItinerary, setShowItinerary] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [itineraryData, setItineraryData] = useState<ItineraryData | null>(null);
 
   const handleSectionChange = useCallback((section: ActiveSection) => {
     window.history.pushState({ section }, '', `#${section}`);
@@ -53,101 +57,7 @@ export default function TravelApp() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const [itineraryData] = useState<ItineraryData>({
-    resumen: {
-      destino: 'Barcelona, España',
-      fecha_inicio: '2026-03-25',
-      fecha_fin: '2026-03-27',
-      clima_general: 'Cielos parcialmente nublados, temperaturas entre 15°C y 20°C.',
-      noticias_relevantes: [
-        'El metro L2 tendrá interrupciones por obras hasta abril.',
-      ],
-    },
-    advertencias: [
-      {
-        tipo: 'transporte',
-        icono: 'alert-triangle',
-        severidad: 'media',
-        mensaje: 'Corte por obras en la línea L2 del metro. Se recomienda utilizar autobuses como alternativa.',
-      },
-      {
-        tipo: 'clima',
-        icono: 'cloud-rain',
-        severidad: 'baja',
-        mensaje: 'Posible lluvia ligera el segundo día. Actividades al aire libre podrían verse afectadas.',
-      },
-    ],
-    itinerario: [
-      {
-        dia: 'Día 1 — 25 de Marzo',
-        actividades: [
-          {
-            hora: '10:00',
-            lugar: 'Sagrada Familia',
-            tipo_icono: 'church',
-            descripcion: 'Visita a la famosa basílica modernista de Gaudí.',
-            consejo_ia: 'Compra la entrada online para evitar colas. La mejor hora es temprano por la mañana.',
-            coste_estimado: '26€',
-          },
-          {
-            hora: '13:30',
-            lugar: 'La Boqueria Market',
-            tipo_icono: 'utensils',
-            descripcion: 'Mercado gastronómico con opciones locales y tapas.',
-            consejo_ia: 'Prueba las tapas vegetarianas en los puestos del centro. Evita las horas pico.',
-            coste_estimado: '15€',
-          },
-          {
-            hora: '16:00',
-            lugar: 'Park Güell',
-            tipo_icono: 'tree-pine',
-            descripcion: 'Parque modernista con vistas panorámicas de la ciudad.',
-            consejo_ia: 'Lleva calzado cómodo para las escaleras. Visita al atardecer para mejores fotos.',
-            coste_estimado: '10€',
-          },
-        ],
-      },
-      {
-        dia: 'Día 2 — 26 de Marzo',
-        actividades: [
-          {
-            hora: '11:00',
-            lugar: 'Museo Picasso',
-            tipo_icono: 'palette',
-            descripcion: 'Colección de obras del artista Pablo Picasso.',
-            consejo_ia: 'Reserva entrada con antelación. La colección permanente es extensa.',
-            coste_estimado: '12€',
-          },
-          {
-            hora: '14:00',
-            lugar: 'Gothic Quarter',
-            tipo_icono: 'building',
-            descripcion: 'Barrio histórico con arquitectura medieval.',
-            consejo_ia: 'Explora las callejuelas estrechas. Hay muchos cafés con terraza.',
-            coste_estimado: 'Gratis',
-          },
-        ],
-      },
-    ],
-    consejos_generales: [
-      {
-        icono: 'wind',
-        categoria: 'clima',
-        mensaje: 'Lleva una chaqueta ligera; las temperaturas pueden bajar por la noche.',
-      },
-      {
-        icono: 'credit-card',
-        categoria: 'presupuesto',
-        mensaje: 'La Barcelona Card cuesta 45€ para 3 días e incluye transporte y descuentos.',
-      },
-    ],
-    presupuesto_estimado: {
-      transporte: '15€',
-      alimentacion: '60€',
-      entradas: '48€',
-      total: '123€',
-    },
-  });
+
 
   const handleBudgetChange = (value: 'bajo' | 'medio' | 'alto') => {
     setPreferences(prev => ({ ...prev, presupuesto: value }));
@@ -166,9 +76,30 @@ export default function TravelApp() {
     });
   };
 
-  const handleGenerateItinerary = () => {
-    setShowItinerary(true);
+  const handleGenerateItinerary = async () => {
+    if (!destination || !startDate || !endDate) {
+      setError('Por favor rellena el destino y las fechas antes de continuar.');
+      return;
+    }
+    setError(null);
+    setIsLoading(true);
     handleSectionChange('itinerary');
+    try {
+      const data = await generateTripPlan({
+        destino: destination,
+        fechas: { inicio: startDate, fin: endDate },
+        intereses: preferences.intereses,
+        presupuesto: preferences.presupuesto,
+        restricciones: preferences.restricciones.filter(Boolean),
+      });
+      setItineraryData(data);
+      setShowItinerary(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error inesperado al generar el itinerario.');
+      handleSectionChange('planner');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBackToPlanner = () => {
@@ -191,30 +122,47 @@ export default function TravelApp() {
       )}
 
       {activeSection === 'planner' && (
-        <TripPlanner
-          origin={origin}
-          onOriginChange={setOrigin}
-          destination={destination}
-          startDate={startDate}
-          endDate={endDate}
-          preferences={preferences}
-          onDestinationChange={setDestination}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onBudgetChange={handleBudgetChange}
-          onDietaryChange={handleDietaryChange}
-          onInterestsChange={handleInterestsChange}
-          onGenerateItinerary={handleGenerateItinerary}
-        />
+        <>
+          {error && (
+            <div className="mx-auto mt-4 max-w-[800px] px-6">
+              <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                ⚠️ {error}
+              </div>
+            </div>
+          )}
+          <TripPlanner
+            origin={origin}
+            onOriginChange={setOrigin}
+            destination={destination}
+            startDate={startDate}
+            endDate={endDate}
+            preferences={preferences}
+            onDestinationChange={setDestination}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            onBudgetChange={handleBudgetChange}
+            onDietaryChange={handleDietaryChange}
+            onInterestsChange={handleInterestsChange}
+            onGenerateItinerary={handleGenerateItinerary}
+          />
+        </>
       )}
 
       {activeSection === 'itinerary' && (
-        <ItineraryView
-          itineraryData={itineraryData}
-          showAlerts={showAlerts}
-          onToggleAlerts={handleToggleAlerts}
-          onBack={handleBackToPlanner}
-        />
+        isLoading ? (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-indigo-600">
+            <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+            <p className="text-lg font-medium">Generando tu itinerario con IA...</p>
+            <p className="text-sm text-gray-500">Consultando clima, noticias y Gemini ✨</p>
+          </div>
+        ) : itineraryData ? (
+          <ItineraryView
+            itineraryData={itineraryData}
+            showAlerts={showAlerts}
+            onToggleAlerts={handleToggleAlerts}
+            onBack={handleBackToPlanner}
+          />
+        ) : null
       )}
 
       <Footer />

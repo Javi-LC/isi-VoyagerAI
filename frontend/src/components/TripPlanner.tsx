@@ -181,6 +181,7 @@ export function TripPlanner({
         </div>
 
         <button
+          type="button"
           className="p-5 w-full text-lg font-semibold bg-indigo-500 rounded-xl transition-all cursor-pointer border-none duration-300 ease-out text-white hover:bg-indigo-600 hover:transform hover:scale-105"
           onClick={onGenerateItinerary}
         >

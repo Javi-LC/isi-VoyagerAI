@@ -51,3 +51,9 @@ desktop.ini
 
 # Docker
 *.override.yml
+
+# Graphify outputs
+graphify-out/
+
+# Ignore all env files
+.env*
