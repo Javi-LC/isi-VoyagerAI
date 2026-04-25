@@ -32,12 +32,17 @@ export interface Budget {
   total: string;
 }
 
+export interface NoticiaRelevante {
+  titulo: string;
+  url?: string;
+}
+
 export interface Summary {
   destino: string;
   fecha_inicio: string;
   fecha_fin: string;
   clima_general: string;
-  noticias_relevantes: string[];
+  noticias_relevantes: NoticiaRelevante[];
 }
 
 export interface ItineraryData {

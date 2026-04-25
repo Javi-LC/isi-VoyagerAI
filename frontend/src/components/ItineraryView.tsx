@@ -2,6 +2,7 @@
 import React from 'react';
 import { Bell, FileText, AlertTriangle, PartyPopper, ArrowLeft, Sun, Bot } from 'lucide-react';
 import { ItineraryData } from '../types/travel';
+import { exportToPDF } from '../utils/exportPDF';
 
 interface ItineraryViewProps {
   itineraryData: ItineraryData;
@@ -44,7 +45,10 @@ export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts, onBac
               <Bell className="inline w-4 h-4 mr-2" />
               Alerts
             </button>
-            <button className="px-6 py-3 text-sm font-semibold text-indigo-500 rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer bg-white/70 backdrop-blur-md duration-300 ease-out hover:bg-indigo-50/70">
+            <button
+              className="px-6 py-3 text-sm font-semibold text-indigo-500 rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer bg-white/70 backdrop-blur-md duration-300 ease-out hover:bg-indigo-50/70"
+              onClick={() => exportToPDF(itineraryData)}
+            >
               <FileText className="inline w-4 h-4 mr-2" />
               Export PDF
             </button>
@@ -85,16 +89,32 @@ export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts, onBac
               Noticias Relevantes
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {itineraryData.resumen.noticias_relevantes.map((noticia, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-xl border-l-4 border-solid bg-blue-50/60 border-blue-500 hover:shadow-lg transition-all duration-300"
-                >
-                  <p className="m-0 text-sm font-medium text-zinc-900">
-                    • {noticia}
-                  </p>
-                </div>
-              ))}
+              {itineraryData.resumen.noticias_relevantes.map((noticia, idx) => {
+                const titulo = typeof noticia === 'string' ? noticia : noticia.titulo;
+                const url = typeof noticia === 'string' ? '' : (noticia.url || '');
+                return (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl border-l-4 border-solid bg-blue-50/60 border-blue-500 hover:shadow-lg transition-all duration-300"
+                  >
+                    {url ? (
+                      <a 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="m-0 text-sm font-medium text-zinc-900 hover:text-indigo-600 transition-colors no-underline"
+                      >
+                        • {titulo}
+                        <span className="ml-2 text-xs text-indigo-500">↗ Leer más</span>
+                      </a>
+                    ) : (
+                      <p className="m-0 text-sm font-medium text-zinc-900">
+                        • {titulo}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

@@ -7,12 +7,22 @@ from app.models import TravelRequest, TravelResponse
 async def generate_itinerary(
     request: TravelRequest, 
     clima: str, 
-    noticias: list[str]
+    noticias: list
 ) -> TravelResponse:
+    
+    # Separar noticias reales (con URL) de las que son strings
+    noticias_con_url = []
+    noticias_texto = []
+    for n in noticias:
+        if isinstance(n, dict):
+            noticias_con_url.append({"titulo": n.get("titulo", ""), "url": n.get("url", "")})
+            noticias_texto.append(n.get("contexto", n.get("titulo", "")))
+        else:
+            noticias_texto.append(n)
     
     prompt = f"""Eres un planificador de viajes experto. Genera un itinerario estructurado para visitar {request.destino}.
 
-CONFIURACIÓN DEL VIAJE:
+CONFIGURACIÓN DEL VIAJE:
 - Fechas: Desde el {request.fechas.inicio} hasta el {request.fechas.fin}.
 - Intereses: {', '.join(request.intereses)}
 - Presupuesto: {request.presupuesto}
@@ -20,7 +30,11 @@ CONFIURACIÓN DEL VIAJE:
 
 CONTEXTO ACTUAL:
 - Clima esperado: {clima}
-- Noticias recientes: {'; '.join(noticias)}
+- Noticias recientes del destino (como referencia): {'; '.join(noticias_texto) if noticias_texto else 'No hay noticias disponibles.'}
+
+INSTRUCCIÓN SOBRE TIPS:
+Genera SIEMPRE 2 o 3 datos breves y útiles que un turista debería saber antes de visitar {request.destino}.
+Por ejemplo: requisitos de entrada, moneda local, costumbres, transporte público, eventos típicos de la época, etc.
 
 Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTAMENTE esta estructura:
 {{
@@ -28,8 +42,8 @@ Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTA
     "destino": "{request.destino}",
     "fecha_inicio": "{request.fechas.inicio}",
     "fecha_fin": "{request.fechas.fin}",
-    "clima_general": "{clima}",
-    "noticias_relevantes": {json.dumps(noticias, ensure_ascii=False)}
+    "clima_general": "Ver datos del clima",
+    "tips_destino": ["Dato útil 1", "Dato útil 2", "Dato útil 3"]
   }},
   "advertencias": [
     {{
@@ -92,6 +106,19 @@ NO INCLUYAS texto fuera del JSON (ni siquiera etiquetas markdown ```json). RESPO
             raw = "\n".join(lines)
             
         parsed = json.loads(raw)
+        
+        # Solo noticias reales con URL (pre-filtradas por news.py)
+        noticias_finales = []
+        for noticia in noticias_con_url:
+            if noticia.get("titulo"):
+                noticias_finales.append(noticia)
+        
+        parsed["resumen"]["noticias_relevantes"] = noticias_finales
+        # Forzar el clima real
+        parsed["resumen"]["clima_general"] = clima
+        # Limpiar campo temporal
+        parsed["resumen"].pop("tips_destino", None)
+        
         return TravelResponse(**parsed)
     except Exception as e:
         raise ValueError(f"Error generando itinerario con Gemini: {str(e)}")
