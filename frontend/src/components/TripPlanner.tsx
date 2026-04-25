@@ -103,6 +103,7 @@ export function TripPlanner({
           </label>
           <div className="grid gap-3 grid-cols-[repeat(3,1fr)]">
             <button
+              type="button"
               className="p-4 text-base font-medium rounded-xl border-2 border-solid transition-all cursor-pointer duration-300 ease-out flex items-center justify-center gap-2"
               onClick={() => onBudgetChange('bajo')}
               style={{
@@ -114,6 +115,7 @@ export function TripPlanner({
               Budget
             </button>
             <button
+              type="button"
               className="p-4 text-base font-medium rounded-xl border-2 border-solid transition-all cursor-pointer duration-300 ease-out flex items-center justify-center gap-2"
               onClick={() => onBudgetChange('medio')}
               style={{
@@ -125,6 +127,7 @@ export function TripPlanner({
               Moderate
             </button>
             <button
+              type="button"
               className="p-4 text-base font-medium rounded-xl border-2 border-solid transition-all cursor-pointer duration-300 ease-out flex items-center justify-center gap-2"
               onClick={() => onBudgetChange('alto')}
               style={{
@@ -153,6 +156,7 @@ export function TripPlanner({
             ].map(interest => (
               <button
                 key={interest.name}
+                type="button"
                 onClick={() => onInterestsChange(interest.name)}
                 className={`px-4 py-2 text-sm font-medium rounded-full border-2 transition-all duration-200 cursor-pointer flex items-center gap-2 ${
                   preferences.intereses.includes(interest.name)
