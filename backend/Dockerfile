@@ -7,6 +7,9 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Directorio para la base de datos persistente
+RUN mkdir -p /app/data
+
 # Copiamos el resto del código del backend
 COPY ./app ./app
 
