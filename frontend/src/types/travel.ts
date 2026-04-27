@@ -59,4 +59,12 @@ export interface Preferences {
   intereses: string[];
 }
 
-export type ActiveSection = 'landing' | 'planner' | 'itinerary';
+export type ActiveSection = 'landing' | 'planner' | 'itinerary' | 'history';
+
+export interface TripSummary {
+  id: number;
+  destino: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  fecha_creacion: string;
+}

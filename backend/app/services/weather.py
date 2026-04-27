@@ -6,12 +6,12 @@ WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
 async def get_weather(lat: float, lon: float, start_date: date, end_date: date) -> str:
     async with httpx.AsyncClient(timeout=10) as client:
         try:
+            # Open-Meteo no soporta start_date/end_date en /forecast
+            # Usamos solo los parámetros básicos
             resp = await client.get(WEATHER_URL, params={
                 "latitude": lat,
                 "longitude": lon,
                 "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode",
-                "start_date": start_date.isoformat(),
-                "end_date": end_date.isoformat(),
                 "timezone": "auto",
             })
             resp.raise_for_status()

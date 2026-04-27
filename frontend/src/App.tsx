@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { LandingSection } from './components/LandingSection';
 import { TripPlanner } from './components/TripPlanner';
 import { ItineraryView } from './components/ItineraryView';
+import { HistorySection } from './components/HistorySection';
 import { Footer } from './components/Footer';
 import { ActiveSection, Preferences, ItineraryData } from './types/travel';
 import { generateTripPlan } from './lib/api';
@@ -77,6 +78,7 @@ export default function TravelApp() {
   };
 
   const handleGenerateItinerary = async () => {
+    if (isLoading) return;
     if (!destination || !startDate || !endDate) {
       setError('Por favor rellena el destino y las fechas antes de continuar.');
       return;
@@ -137,6 +139,7 @@ export default function TravelApp() {
             startDate={startDate}
             endDate={endDate}
             preferences={preferences}
+            isLoading={isLoading}
             onDestinationChange={setDestination}
             onStartDateChange={setStartDate}
             onEndDateChange={setEndDate}
@@ -146,6 +149,13 @@ export default function TravelApp() {
             onGenerateItinerary={handleGenerateItinerary}
           />
         </>
+      )}
+
+      {activeSection === 'history' && (
+        <HistorySection 
+          onTripSelect={setItineraryData}
+          onSectionChange={handleSectionChange}
+        />
       )}
 
       {activeSection === 'itinerary' && (

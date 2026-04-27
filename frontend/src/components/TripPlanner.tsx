@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { Bot, DollarSign, Shield, RefreshCw, FileText, Camera, Utensils, Building, Palette, Mountain, Wine, CloudRain, AlertTriangle } from 'lucide-react';
+import { CityAutocomplete } from './CityAutocomplete';
 import { Preferences } from '../types/travel';
 
 interface TripPlannerProps {
@@ -9,6 +10,7 @@ interface TripPlannerProps {
   startDate: string;
   endDate: string;
   preferences: Preferences;
+  isLoading?: boolean;
   onOriginChange: (value: string) => void;
   onDestinationChange: (value: string) => void;
   onStartDateChange: (value: string) => void;
@@ -25,6 +27,7 @@ export function TripPlanner({
   startDate,
   endDate,
   preferences,
+  isLoading = false,
   onOriginChange,
   onDestinationChange,
   onStartDateChange,
@@ -46,30 +49,18 @@ export function TripPlanner({
         </p>
 
         <div className="grid gap-5 mb-8 grid-cols-[1fr_1fr] max-sm:grid-cols-[1fr]">
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-zinc-800">
-              Origin
-            </label>
-            <input
-              className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
-              type="text"
-              placeholder="e.g., Madrid, Spain"
-              value={origin}
-              onChange={(e) => onOriginChange(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-zinc-800">
-              Destination
-            </label>
-            <input
-              className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
-              type="text"
-              placeholder="e.g., Barcelona, Spain"
-              value={destination}
-              onChange={(e) => onDestinationChange(e.target.value)}
-            />
-          </div>
+          <CityAutocomplete
+            value={origin}
+            onChange={onOriginChange}
+            placeholder="e.g., Madrid, Spain"
+            label="Origin"
+          />
+          <CityAutocomplete
+            value={destination}
+            onChange={onDestinationChange}
+            placeholder="e.g., Barcelona, Spain"
+            label="Destination"
+          />
         </div>
 
         <div className="grid gap-5 mb-8 grid-cols-[1fr_1fr] max-sm:grid-cols-[1fr]">
@@ -186,10 +177,16 @@ export function TripPlanner({
 
         <button
           type="button"
-          className="p-5 w-full text-lg font-semibold bg-indigo-500 rounded-xl transition-all cursor-pointer border-none duration-300 ease-out text-white hover:bg-indigo-600 hover:transform hover:scale-105"
+          className="p-5 w-full text-lg font-semibold rounded-xl transition-all border-none duration-300 ease-out text-white"
+          style={{
+            backgroundColor: isLoading ? '#a5b4fc' : '#6366f1',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            transform: isLoading ? 'none' : undefined,
+          }}
           onClick={onGenerateItinerary}
+          disabled={isLoading}
         >
-          Generate AI Itinerary ✨
+          {isLoading ? 'Generando itinerario...' : 'Generate AI Itinerary ✨'}
         </button>
 
         <div className="p-6 mt-8 bg-gray-50/80 backdrop-blur-sm rounded-xl">

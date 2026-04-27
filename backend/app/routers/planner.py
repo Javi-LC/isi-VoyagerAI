@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 from sqlalchemy.orm import Session
 import asyncio
 import json
+import time
+from typing import Dict, Tuple
 from app.models import TravelRequest, TravelResponse
 from app.services.geocoding import get_coordinates
 from app.services.weather import get_weather
@@ -11,6 +13,51 @@ from app.database import get_db
 from app.db_models import TripRecord
 
 router = APIRouter()
+IDEMPOTENCY_TTL_SECONDS = 10 * 60
+IDEMPOTENCY_CACHE: Dict[str, Tuple[float, TravelResponse]] = {}
+IDEMPOTENCY_LOCKS: Dict[str, asyncio.Lock] = {}
+
+
+def _cleanup_idempotency_cache(now_ts: float) -> None:
+    expired_keys = [
+        key
+        for key, (created_at, _) in IDEMPOTENCY_CACHE.items()
+        if now_ts - created_at > IDEMPOTENCY_TTL_SECONDS
+    ]
+    for key in expired_keys:
+        IDEMPOTENCY_CACHE.pop(key, None)
+        IDEMPOTENCY_LOCKS.pop(key, None)
+
+
+async def _build_itinerary(request: TravelRequest) -> TravelResponse:
+    # 1. Geocodificacion
+    lat, lon = await get_coordinates(request.destino)
+
+    clima = "No disponible"
+    if lat is not None and lon is not None:
+        # 2. Consultar clima y noticias en paralelo
+        clima_task = get_weather(lat, lon, request.fechas.inicio, request.fechas.fin)
+        noticias_task = get_recent_news(request.destino)
+
+        clima, noticias = await asyncio.gather(clima_task, noticias_task)
+    else:
+        # Fallback si no hay coordenadas
+        noticias = await get_recent_news(request.destino)
+        clima = f"No se pudo encontrar las coordenadas para {request.destino}."
+
+    # 3. Generar itinerario con Gemini
+    return await generate_itinerary(request, clima, noticias)
+
+
+def _save_trip(db: Session, request: TravelRequest, itinerario: TravelResponse) -> None:
+    db_trip = TripRecord(
+        destino=request.destino,
+        fecha_inicio=str(request.fechas.inicio),
+        fecha_fin=str(request.fechas.fin),
+        itinerario_json=itinerario.model_dump_json(),
+    )
+    db.add(db_trip)
+    db.commit()
 
 @router.get("/health")
 async def health_check():
@@ -25,38 +72,38 @@ async def health_check():
     }
 
 @router.post("/plan", response_model=TravelResponse)
-async def create_plan(request: TravelRequest, db: Session = Depends(get_db)):
-    # 1. Geocodificación
-    lat, lon = await get_coordinates(request.destino)
-    
-    clima = "No disponible"
-    if lat is not None and lon is not None:
-        # 2. Consultar clima y noticias en paralelo
-        clima_task = get_weather(lat, lon, request.fechas.inicio, request.fechas.fin)
-        noticias_task = get_recent_news(request.destino)
-        
-        clima, noticias = await asyncio.gather(clima_task, noticias_task)
-    else:
-        # Fallback si no hay coordenadas
-        noticias = await get_recent_news(request.destino)
-        clima = f"No se pudo encontrar las coordenadas para {request.destino}."
-        
-    # 3. Generar itinerario con Gemini
+async def create_plan(
+    request: TravelRequest,
+    db: Session = Depends(get_db),
+    x_idempotency_key: str | None = Header(default=None, alias="X-Idempotency-Key"),
+):
     try:
-        itinerario = await generate_itinerary(request, clima, noticias)
-        
-        # 4. Guardar en la base de datos
-        db_trip = TripRecord(
-            destino=request.destino,
-            fecha_inicio=str(request.fechas.inicio),
-            fecha_fin=str(request.fechas.fin),
-            itinerario_json=itinerario.model_dump_json()
-        )
-        db.add(db_trip)
-        db.commit()
-        
-        return itinerario
+        if not x_idempotency_key:
+            itinerario = await _build_itinerary(request)
+            _save_trip(db, request, itinerario)
+            return itinerario
+
+        now_ts = time.time()
+        _cleanup_idempotency_cache(now_ts)
+
+        cached = IDEMPOTENCY_CACHE.get(x_idempotency_key)
+        if cached:
+            _, cached_itinerary = cached
+            return cached_itinerary
+
+        request_lock = IDEMPOTENCY_LOCKS.setdefault(x_idempotency_key, asyncio.Lock())
+        async with request_lock:
+            cached = IDEMPOTENCY_CACHE.get(x_idempotency_key)
+            if cached:
+                _, cached_itinerary = cached
+                return cached_itinerary
+
+            itinerario = await _build_itinerary(request)
+            _save_trip(db, request, itinerario)
+            IDEMPOTENCY_CACHE[x_idempotency_key] = (time.time(), itinerario)
+            return itinerario
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/trips")

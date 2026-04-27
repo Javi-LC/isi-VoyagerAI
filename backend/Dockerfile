@@ -13,5 +13,5 @@ COPY ./app ./app
 # Exponemos el puerto de la API
 EXPOSE 8000
 
-# Ejecutamos el servidor de desarrollo
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Ejecutamos el servidor de la API
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

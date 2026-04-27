@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const backendTarget = process.env.VITE_BACKEND_URL || 'http://localhost:8001';
+
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -13,8 +15,16 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://voyager-backend:8000',
+        target: backendTarget,
         changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('error', (_err, _req, res) => {
+            if (!res.headersSent) {
+              res.writeHead(503, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ detail: 'Backend no disponible. Verifica que los contenedores estén activos.' }));
+            }
+          });
+        },
       },
     },
   }

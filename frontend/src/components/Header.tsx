@@ -36,6 +36,14 @@ export function Header({ activeSection, onSectionChange }: HeaderProps) {
           >
             Planificar Viaje
           </button>
+          <button
+            className={`px-3 py-2 text-base transition-all cursor-pointer rounded-lg hover:bg-white/50 ${
+              activeSection === 'history' ? 'font-semibold text-indigo-600 bg-white/60 shadow-sm' : 'text-slate-600'
+            }`}
+            onClick={() => onSectionChange('history')}
+          >
+            Mis Viajes
+          </button>
         </nav>
       </div>
     </header>
