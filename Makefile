@@ -13,7 +13,7 @@ RESET  := \033[0m
 PASS := $(GREEN)[PASS]$(RESET)
 FAIL := $(RED)[FAIL]$(RESET)
 
-.PHONY: help encender apagar reiniciar logs test
+.PHONY: help encender apagar reiniciar logs test status
 
 help:
 	@echo "Comandos disponibles:"
@@ -22,6 +22,7 @@ help:
 	@echo "  make reiniciar  # Reconstruye y levanta todo"
 	@echo "  make logs       # Muestra logs de servicios"
 	@echo "  make test       # Smoke tests de backend y frontend"
+	@echo "  make status     # Estado de los contenedores del proyecto"
 
 encender:
 	$(DOCKER_COMPOSE) up -d --build
@@ -34,6 +35,10 @@ reiniciar:
 
 logs:
 	$(DOCKER_COMPOSE) logs -f --tail=200
+
+status:
+	@printf "$(BOLD)$(CYAN)VoyagerAI — Contenedores$(RESET)\n"
+	@$(DOCKER_COMPOSE) ps --format "table {{.Service}}\t{{.Status}}\t{{.Ports}}"
 
 test:
 	@printf "\n$(BOLD)$(CYAN)══════════════════════════════════════════$(RESET)\n"
