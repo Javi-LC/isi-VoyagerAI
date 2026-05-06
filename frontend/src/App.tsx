@@ -79,8 +79,8 @@ export default function TravelApp() {
 
   const handleGenerateItinerary = async () => {
     if (isLoading) return;
-    if (!destination || !startDate || !endDate) {
-      setError('Por favor rellena el destino y las fechas antes de continuar.');
+    if (!origin || !destination || !startDate || !endDate) {
+      setError('Por favor rellena el origen, el destino y las fechas antes de continuar.');
       return;
     }
     setError(null);
@@ -88,6 +88,7 @@ export default function TravelApp() {
     handleSectionChange('itinerary');
     try {
       const data = await generateTripPlan({
+        origen: origin,
         destino: destination,
         fechas: { inicio: startDate, fin: endDate },
         intereses: preferences.intereses,

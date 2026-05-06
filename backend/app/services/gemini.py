@@ -20,9 +20,11 @@ async def generate_itinerary(
         else:
             noticias_texto.append(n)
     
-    prompt = f"""Eres un planificador de viajes experto. Genera un itinerario estructurado para visitar {request.destino}.
+    prompt = f"""Eres un planificador de viajes experto. Genera un itinerario estructurado para un viaje desde {request.origen} hacia {request.destino}.
 
 CONFIGURACIÓN DEL VIAJE:
+- Origen: {request.origen}
+- Destino: {request.destino}
 - Fechas: Desde el {request.fechas.inicio} hasta el {request.fechas.fin}.
 - Intereses: {', '.join(request.intereses)}
 - Presupuesto: {request.presupuesto}
@@ -39,6 +41,7 @@ Por ejemplo: requisitos de entrada, moneda local, costumbres, transporte públic
 Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTAMENTE esta estructura:
 {{
   "resumen": {{
+    "origen": "{request.origen}",
     "destino": "{request.destino}",
     "fecha_inicio": "{request.fechas.inicio}",
     "fecha_fin": "{request.fechas.fin}",

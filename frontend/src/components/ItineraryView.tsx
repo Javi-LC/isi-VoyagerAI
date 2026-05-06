@@ -27,7 +27,7 @@ export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onB
         <div className="flex justify-between items-center mb-8 max-sm:flex-col max-sm:gap-4 max-sm:items-start">
           <div>
             <h2 className="m-0 mb-2 text-4xl font-bold text-zinc-900">
-              {itineraryData.resumen.destino}
+              {itineraryData.resumen.origen} ➔ {itineraryData.resumen.destino}
             </h2>
             <p className="m-0 text-base text-stone-500">
               {itineraryData.resumen.fecha_inicio} - {itineraryData.resumen.fecha_fin} • {itineraryData.itinerario.length} Días

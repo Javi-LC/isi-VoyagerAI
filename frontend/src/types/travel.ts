@@ -38,6 +38,7 @@ export interface NoticiaRelevante {
 }
 
 export interface Summary {
+  origen: string;
   destino: string;
   fecha_inicio: string;
   fecha_fin: string;

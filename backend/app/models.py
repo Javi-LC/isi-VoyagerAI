@@ -7,6 +7,7 @@ class DateRange(BaseModel):
     fin: date
 
 class TravelRequest(BaseModel):
+    origen: str
     destino: str
     fechas: DateRange
     intereses: List[str]

@@ -1,6 +1,7 @@
 import { ItineraryData } from '../types/travel';
 
 export interface TravelRequest {
+  origen: string;
   destino: string;
   fechas: { inicio: string; fin: string };
   intereses: string[];
