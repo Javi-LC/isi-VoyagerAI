@@ -1,6 +1,8 @@
 export interface Activity {
   hora: string;
   lugar: string;
+  lat?: number;
+  lng?: number;
   tipo_icono: string;
   descripcion: string;
   consejo_ia: string;

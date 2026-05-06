@@ -5,7 +5,7 @@ import json
 import time
 from typing import Dict, Tuple
 from app.models import TravelRequest, TravelResponse
-from app.services.geocoding import get_coordinates
+from app.services.geocoding import get_coordinates, get_place_coordinates
 from app.services.weather import get_weather
 from app.services.news import get_recent_news
 from app.services.gemini import generate_itinerary
@@ -46,7 +46,29 @@ async def _build_itinerary(request: TravelRequest) -> TravelResponse:
         clima = f"No se pudo encontrar las coordenadas para {request.destino}."
 
     # 3. Generar itinerario con Gemini
-    return await generate_itinerary(request, clima, noticias)
+    itinerario = await generate_itinerary(request, clima, noticias)
+    
+    # 4. Enriquecer las actividades con coordenadas
+    ciudad_destino = request.destino.split(",")[0].strip()
+    
+    async def enrich_activity(act):
+        lat, lng = await get_place_coordinates(act.lugar, city=ciudad_destino)
+        # Fallback a coordenadas de la ciudad si no se encuentra
+        act.lat = lat if lat is not None else get_lat
+        act.lng = lng if lng is not None else get_lng
+        
+    get_lat = lat
+    get_lng = lon
+
+    enrich_tasks = []
+    for dia in itinerario.itinerario:
+        for act in dia.actividades:
+            enrich_tasks.append(enrich_activity(act))
+            
+    if enrich_tasks:
+        await asyncio.gather(*enrich_tasks)
+        
+    return itinerario
 
 
 def _save_trip(db: Session, request: TravelRequest, itinerario: TravelResponse) -> None:

@@ -3,6 +3,7 @@ import React from 'react';
 import { Bell, FileText, AlertTriangle, PartyPopper, ArrowLeft, Sun, Bot } from 'lucide-react';
 import { ItineraryData } from '../types/travel';
 import { exportToPDF } from '../utils/exportPDF';
+import { DayMap } from './DayMap';
 
 interface ItineraryViewProps {
   itineraryData: ItineraryData;
@@ -136,6 +137,8 @@ export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onB
                   </span>
                 </div>
               </div>
+
+              <DayMap actividades={day.actividades} />
 
               <div className="flex flex-col gap-4">
                 {day.actividades?.map((activity, activityIndex) => (

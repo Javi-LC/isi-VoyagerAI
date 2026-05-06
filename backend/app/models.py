@@ -23,6 +23,8 @@ class Advertencia(BaseModel):
 class Actividad(BaseModel):
     hora: str
     lugar: str
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     tipo_icono: str
     descripcion: str
     consejo_ia: str
