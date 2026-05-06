@@ -18,7 +18,7 @@ export function LandingSection({ onSectionChange }: LandingSectionProps) {
         <div className="mx-auto max-w-4xl p-10 bg-white/40 backdrop-blur-xl border border-white/50 rounded-3xl shadow-2xl">
           <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-white/60 backdrop-blur-md border border-white/60 text-indigo-700 font-medium text-sm">
             <Sparkles className="w-4 h-4" />
-            <span>Potenciado por Gemini 2.0 Flash</span>
+            <span>Potenciado por Gemini 2.5 Flash</span>
           </div>
           
           <h2 className="mb-6 text-6xl font-extrabold leading-tight tracking-tight text-slate-800 max-sm:text-4xl">
@@ -81,7 +81,7 @@ export function LandingSection({ onSectionChange }: LandingSectionProps) {
               Contexto Inteligente
             </h4>
             <p className="text-slate-600 leading-relaxed">
-              Consejos generados por Gemini 2.0 Flash específicamente para tu perfil, preferencias horarias y restricciones físicas.
+              Consejos generados por Gemini 2.5 Flash específicamente para tu perfil, preferencias horarias y restricciones físicas.
             </p>
           </article>
         </div>

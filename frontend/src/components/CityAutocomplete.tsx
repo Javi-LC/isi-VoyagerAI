@@ -11,8 +11,8 @@ interface CityOption {
 export function CityAutocomplete({ 
   value, 
   onChange, 
-  placeholder = "e.g., Barcelona, Spain",
-  label = "Destination"
+  placeholder = "ej., Barcelona, España",
+  label = "Destino"
 }: CityAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<CityOption[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -204,7 +204,7 @@ export function CityAutocomplete({
 
       {isOpen && !isLoading && suggestions.length === 0 && value.length >= 2 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-neutral-200 rounded-lg shadow-lg z-50 p-4 text-center text-gray-500">
-          No cities found
+          No se encontraron ciudades
         </div>
       )}
     </div>

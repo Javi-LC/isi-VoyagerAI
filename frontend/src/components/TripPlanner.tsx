@@ -41,32 +41,31 @@ export function TripPlanner({
     <section className="px-6 py-16 min-h-[calc(100vh_-_80px)] bg-gradient-to-br from-indigo-50 to-purple-50 backdrop-blur-sm">
       <div className="p-12 mx-auto my-0 rounded-3xl bg-white/80 backdrop-blur-md max-w-[800px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] max-sm:px-6 max-sm:py-8">
         <h2 className="mb-3 text-4xl font-bold text-zinc-900">
-          Plan Your Perfect Trip
+          Planifica tu viaje perfecto
         </h2>
         <p className="mb-10 text-base text-stone-500">
-          Tell us about your origin, destination and preferences, and our AI will
-          create a personalized itinerary
+          Cuéntanos sobre tu origen, destino y preferencias, y nuestra IA creará un itinerario personalizado
         </p>
 
         <div className="grid gap-5 mb-8 grid-cols-[1fr_1fr] max-sm:grid-cols-[1fr]">
           <CityAutocomplete
             value={origin}
             onChange={onOriginChange}
-            placeholder="e.g., Madrid, Spain"
-            label="Origin"
+            placeholder="ej., Madrid, España"
+            label="Origen"
           />
           <CityAutocomplete
             value={destination}
             onChange={onDestinationChange}
-            placeholder="e.g., Barcelona, Spain"
-            label="Destination"
+            placeholder="ej., Barcelona, España"
+            label="Destino"
           />
         </div>
 
         <div className="grid gap-5 mb-8 grid-cols-[1fr_1fr] max-sm:grid-cols-[1fr]">
           <div>
             <label className="block mb-2 text-sm font-semibold text-zinc-800">
-              Start Date
+              Fecha de inicio
             </label>
             <input
               className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
@@ -77,7 +76,7 @@ export function TripPlanner({
           </div>
           <div>
             <label className="block mb-2 text-sm font-semibold text-zinc-800">
-              End Date
+              Fecha de fin
             </label>
             <input
               className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
@@ -90,7 +89,7 @@ export function TripPlanner({
 
         <div className="mb-8">
           <label className="block mb-3 text-sm font-semibold text-zinc-800">
-            Budget Level
+            Nivel de presupuesto
           </label>
           <div className="grid gap-3 grid-cols-[repeat(3,1fr)]">
             <button
@@ -103,7 +102,7 @@ export function TripPlanner({
               }}
             >
               <DollarSign className="w-5 h-5" />
-              Budget
+              Económico
             </button>
             <button
               type="button"
@@ -115,7 +114,7 @@ export function TripPlanner({
               }}
             >
               <Shield className="w-5 h-5" />
-              Moderate
+              Moderado
             </button>
             <button
               type="button"
@@ -127,14 +126,14 @@ export function TripPlanner({
               }}
             >
               <RefreshCw className="w-5 h-5" />
-              Luxury
+              Lujo
             </button>
           </div>
         </div>
 
         <div className="mb-8">
           <label className="block mb-3 text-sm font-semibold text-zinc-800">
-            What are your interests?
+            ¿Cuáles son tus intereses?
           </label>
           <div className="flex flex-wrap gap-3">
             {[
@@ -164,12 +163,12 @@ export function TripPlanner({
 
         <div className="mb-8">
           <label className="block mb-2 text-sm font-semibold text-zinc-800">
-            Dietary Restrictions (Optional)
+            Restricciones dietéticas (Opcional)
           </label>
           <input
             className="p-4 w-full text-base rounded-xl border-2 border-solid transition-all border-neutral-200 duration-300 ease-out focus:border-indigo-500 focus:outline-none"
             type="text"
-            placeholder="e.g., Vegetariano, Sin gluten, Celíaco"
+            placeholder="ej., Vegetariano, Sin gluten, Celíaco"
             value={preferences.restricciones.join(', ')}
             onChange={(e) => onDietaryChange(e.target.value)}
           />
@@ -186,22 +185,22 @@ export function TripPlanner({
           onClick={onGenerateItinerary}
           disabled={isLoading}
         >
-          {isLoading ? 'Generando itinerario...' : 'Generate AI Itinerary ✨'}
+          {isLoading ? 'Generando itinerario...' : 'Generar Itinerario con IA ✨'}
         </button>
 
         <div className="p-6 mt-8 bg-gray-50/80 backdrop-blur-sm rounded-xl">
           <p className="m-0 text-sm leading-relaxed text-stone-500">
             <Bot className="inline w-4 h-4 mr-1" />
-            <strong>AI-Powered:</strong> Uses Gemini 2.0 Flash to analyze
-            weather forecasts, local news, and events
+            <strong>Impulsado por IA:</strong> Utiliza Gemini 2.5 Flash para analizar
+            pronósticos del clima, noticias locales y eventos
             <br />
             <CloudRain className="inline w-4 h-4 mr-1" />
-            <strong>Weather-Adaptive:</strong> Automatically prioritizes
-            indoor activities when rain is forecast
+            <strong>Adaptable al clima:</strong> Prioriza automáticamente
+            actividades en interiores cuando hay pronóstico de lluvia
             <br />
             <AlertTriangle className="inline w-4 h-4 mr-1" />
-            <strong>Real-Time Alerts:</strong> Get notified about
-            strikes, events, or safety concerns
+            <strong>Alertas en Tiempo Real:</strong> Recibe notificaciones sobre
+            huelgas, eventos o problemas de seguridad
           </p>
         </div>
       </div>

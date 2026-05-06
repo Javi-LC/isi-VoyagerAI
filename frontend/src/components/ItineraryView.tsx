@@ -6,12 +6,12 @@ import { exportToPDF } from '../utils/exportPDF';
 
 interface ItineraryViewProps {
   itineraryData: ItineraryData;
-  showAlerts: boolean;
-  onToggleAlerts: () => void;
+  showAlertas: boolean;
+  onToggleAlertas: () => void;
   onBack: () => void;
 }
 
-export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts, onBack }: ItineraryViewProps) {
+export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onBack }: ItineraryViewProps) {
   return (
     <section className="px-6 py-16 bg-gray-50 min-h-[calc(100vh_-_80px)] backdrop-blur-sm bg-opacity-80">
       <div className="mx-auto my-0 max-w-[1200px]">
@@ -30,35 +30,35 @@ export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts, onBac
               {itineraryData.resumen.destino}
             </h2>
             <p className="m-0 text-base text-stone-500">
-              {itineraryData.resumen.fecha_inicio} - {itineraryData.resumen.fecha_fin} • {itineraryData.itinerario.length} Days
+              {itineraryData.resumen.fecha_inicio} - {itineraryData.resumen.fecha_fin} • {itineraryData.itinerario.length} Días
             </p>
           </div>
           <div className="flex gap-3">
             <button
               className="px-6 py-3 text-sm font-semibold rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer duration-300 ease-out backdrop-blur-md bg-white/70"
-              onClick={onToggleAlerts}
+              onClick={onToggleAlertas}
               style={{
-                backgroundColor: showAlerts ? '#667eea' : 'rgba(255,255,255,0.7)',
-                color: showAlerts ? 'white' : '#667eea',
+                backgroundColor: showAlertas ? '#667eea' : 'rgba(255,255,255,0.7)',
+                color: showAlertas ? 'white' : '#667eea',
               }}
             >
               <Bell className="inline w-4 h-4 mr-2" />
-              Alerts
+              Alertas
             </button>
             <button
               className="px-6 py-3 text-sm font-semibold text-indigo-500 rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer bg-white/70 backdrop-blur-md duration-300 ease-out hover:bg-indigo-50/70"
               onClick={() => exportToPDF(itineraryData)}
             >
               <FileText className="inline w-4 h-4 mr-2" />
-              Export PDF
+              Exportar PDF
             </button>
           </div>
         </div>
 
-        {showAlerts && (
+        {showAlertas && (
           <div className="p-6 mb-8 rounded-2xl bg-white/80 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
             <h3 className="mb-4 text-xl font-semibold text-zinc-900">
-              Active Alerts
+              Alertas Activas
             </h3>
             {itineraryData.advertencias?.map((alert, index) => (
               <div
@@ -175,7 +175,7 @@ export function ItineraryView({ itineraryData, showAlerts, onToggleAlerts, onBac
         <div className="p-8 mt-8 rounded-2xl border-2 border-solid bg-white/80 border-indigo-200/50 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
           <h3 className="flex gap-2 items-center mb-4 text-xl font-semibold text-zinc-900">
             <Bot className="w-5 h-5" />
-            AI Insights
+            Sugerencias de IA
           </h3>
           <p className="m-0 text-base leading-relaxed text-neutral-600">
             {itineraryData.resumen.clima_general} {itineraryData.consejos_generales.map(advice => advice.mensaje).join(' ')}
