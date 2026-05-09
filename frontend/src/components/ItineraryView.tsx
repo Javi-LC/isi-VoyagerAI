@@ -1,9 +1,11 @@
 "use client";
 import React from 'react';
-import { Bell, FileText, AlertTriangle, PartyPopper, ArrowLeft, Sun, Bot } from 'lucide-react';
+import { Bell, FileText, AlertTriangle, PartyPopper, ArrowLeft, Sun, Bot, CalendarDays } from 'lucide-react';
 import { ItineraryData } from '../types/travel';
 import { exportToPDF } from '../utils/exportPDF';
+import { exportToCalendar } from '../utils/exportCalendar';
 import { DayMap } from './DayMap';
+import { BudgetChart } from './BudgetChart';
 
 interface ItineraryViewProps {
   itineraryData: ItineraryData;
@@ -36,7 +38,7 @@ export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onB
           </div>
           <div className="flex gap-3">
             <button
-              className="px-6 py-3 text-sm font-semibold rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer duration-300 ease-out backdrop-blur-md bg-white/70"
+              className="px-6 py-3 text-sm font-semibold rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer duration-300 ease-out backdrop-blur-md bg-white/70 relative"
               onClick={onToggleAlertas}
               style={{
                 backgroundColor: showAlertas ? '#667eea' : 'rgba(255,255,255,0.7)',
@@ -45,6 +47,18 @@ export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onB
             >
               <Bell className="inline w-4 h-4 mr-2" />
               Alertas
+              {itineraryData.advertencias && itineraryData.advertencias.length > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-md">
+                  {itineraryData.advertencias.length}
+                </span>
+              )}
+            </button>
+            <button
+              className="px-6 py-3 text-sm font-semibold text-indigo-500 rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer bg-white/70 backdrop-blur-md duration-300 ease-out hover:bg-indigo-50/70"
+              onClick={() => exportToCalendar(itineraryData)}
+            >
+              <CalendarDays className="inline w-4 h-4 mr-2" />
+              Calendario
             </button>
             <button
               className="px-6 py-3 text-sm font-semibold text-indigo-500 rounded-xl border-2 border-indigo-500 border-solid transition-all cursor-pointer bg-white/70 backdrop-blur-md duration-300 ease-out hover:bg-indigo-50/70"
@@ -61,26 +75,31 @@ export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onB
             <h3 className="mb-4 text-xl font-semibold text-zinc-900">
               Alertas Activas
             </h3>
-            {itineraryData.advertencias?.map((alert, index) => (
-              <div
-                className="p-4 rounded-xl border-l-4 border-solid backdrop-blur-sm"
-                key={index}
-                style={{
-                  marginBottom: index < itineraryData.advertencias.length - 1 ? '12px' : 0,
-                  backgroundColor: alert.severidad === 'media' ? 'rgba(255,243,205,0.8)' : 'rgba(209,236,241,0.8)',
-                  borderLeftColor: alert.severidad === 'media' ? '#ffc107' : '#17a2b8',
-                }}
-              >
-                <div className="flex gap-3 items-center">
-                  <span className="text-xl">
-                    {alert.icono === 'alert-triangle' ? <AlertTriangle className="w-5 h-5" /> : <PartyPopper className="w-5 h-5" />}
-                  </span>
-                  <p className="m-0 text-base font-medium text-zinc-800">
-                    {alert.mensaje}
-                  </p>
-                </div>
+            
+            {(!itineraryData.advertencias || itineraryData.advertencias.length === 0) ? (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-center">
+                <span className="text-xl mr-3">✅</span>
+                <p className="m-0 text-sm font-medium">No hay alertas relevantes ni incidencias reportadas para este destino. ¡Todo en orden!</p>
               </div>
-            ))}
+            ) : (
+              itineraryData.advertencias.map((alert, index) => (
+                <div
+                  className="p-4 rounded-xl border-l-4 border-solid backdrop-blur-sm"
+                  key={index}
+                  style={{
+                    marginBottom: index < itineraryData.advertencias.length - 1 ? '12px' : 0,
+                    backgroundColor: alert.severidad === 'alta' ? 'rgba(254,226,226,0.8)' : alert.severidad === 'media' ? 'rgba(254,243,199,0.8)' : 'rgba(219,234,254,0.8)',
+                    borderLeftColor: alert.severidad === 'alta' ? '#ef4444' : alert.severidad === 'media' ? '#f59e0b' : '#3b82f6',
+                  }}
+                >
+                  <h4 className="flex gap-2 items-center m-0 mb-2 text-base font-semibold text-zinc-900">
+                    <AlertTriangle className="w-5 h-5" />
+                    {alert.tipo.toUpperCase()}
+                  </h4>
+                  <p className="m-0 text-sm text-stone-600">{alert.mensaje}</p>
+                </div>
+              ))
+            )}
           </div>
         )}
 
@@ -184,6 +203,10 @@ export function ItineraryView({ itineraryData, showAlertas, onToggleAlertas, onB
             {itineraryData.resumen.clima_general} {itineraryData.consejos_generales.map(advice => advice.mensaje).join(' ')}
           </p>
         </div>
+
+        {itineraryData.presupuesto_estimado && (
+          <BudgetChart budget={itineraryData.presupuesto_estimado} />
+        )}
       </div>
     </section>
   );

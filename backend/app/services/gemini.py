@@ -34,10 +34,10 @@ CONTEXTO ACTUAL:
 - Clima esperado: {clima}
 - Noticias recientes del destino (como referencia): {'; '.join(noticias_texto) if noticias_texto else 'No hay noticias disponibles.'}
 
-INSTRUCCIÓN SOBRE TIPS:
-Genera SIEMPRE 2 o 3 datos breves y útiles que un turista debería saber antes de visitar {request.destino}.
-Por ejemplo: requisitos de entrada, moneda local, costumbres, transporte público, eventos típicos de la época, etc.
-
+INSTRUCCIÓN SOBRE TIPS Y NOTICIAS:
+1. Genera SIEMPRE 2 o 3 datos breves y útiles que un turista debería saber antes de visitar {request.destino}.
+2. Genera 3 noticias, novedades o eventos actuales MUY RELEVANTES sobre turismo, cultura o actualidad en {request.destino} bajo la clave "noticias_relevantes".
+IMPORTANTE PARA LA URL: Dado que no tienes acceso a internet en tiempo real para generar links de artículos reales, DEBES usar un enlace de búsqueda de Google Noticias. El formato EXACTO de la url debe ser: https://news.google.com/search?q=[Tema+De+La+Noticia]+{request.destino} (reemplazando espacios por el signo +). Esto garantiza que el enlace NUNCA esté roto.
 Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTAMENTE esta estructura:
 {{
   "resumen": {{
@@ -46,7 +46,13 @@ Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTA
     "fecha_inicio": "{request.fechas.inicio}",
     "fecha_fin": "{request.fechas.fin}",
     "clima_general": "Ver datos del clima",
-    "tips_destino": ["Dato útil 1", "Dato útil 2", "Dato útil 3"]
+    "tips_destino": ["Dato útil 1", "Dato útil 2", "Dato útil 3"],
+    "noticias_relevantes": [
+      {{
+        "titulo": "Título atractivo de la noticia o evento",
+        "url": "https://news.google.com/search?q=Palabras+clave+noticia+{request.destino}"
+      }}
+    ]
   }},
   "advertencias": [
     {{
@@ -63,6 +69,8 @@ Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTA
         {{
           "hora": "HH:MM",
           "lugar": "Nombre del lugar",
+          "lat": 40.4168,
+          "lng": -3.7038,
           "tipo_icono": "cpu", 
           "descripcion": "Descripción de la actividad",
           "consejo_ia": "Consejo útil",
@@ -87,6 +95,7 @@ Tu respuesta DEBE ser EXCLUSIVAMENTE un objeto JSON válido que respete ESTRICTA
 }}
 
 Asegúrate de que haya actividades para CADA DÍA entre la fecha de inicio y de fin.
+IMPORTANTE: Cada actividad DEBE incluir las coordenadas GPS reales del lugar (lat y lng con precisión de al menos 4 decimales). Usa coordenadas reales y precisas del lugar exacto.
 Usa nombres de iconos de Lucide-React como: utentils, map-pin, sun, camera, coffee, bus, tree-pine.
 NO INCLUYAS texto fuera del JSON (ni siquiera etiquetas markdown ```json). RESPONDE ÚNICAMENTE CON EL JSON."""
 
@@ -110,13 +119,6 @@ NO INCLUYAS texto fuera del JSON (ni siquiera etiquetas markdown ```json). RESPO
             
         parsed = json.loads(raw)
         
-        # Solo noticias reales con URL (pre-filtradas por news.py)
-        noticias_finales = []
-        for noticia in noticias_con_url:
-            if noticia.get("titulo"):
-                noticias_finales.append(noticia)
-        
-        parsed["resumen"]["noticias_relevantes"] = noticias_finales
         # Forzar el clima real
         parsed["resumen"]["clima_general"] = clima
         # Limpiar campo temporal

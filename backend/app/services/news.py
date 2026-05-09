@@ -1,6 +1,7 @@
 import httpx
 from app.config import settings
 from datetime import datetime, timedelta
+from deep_translator import GoogleTranslator
 
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
 
@@ -77,50 +78,45 @@ def _score_article(title: str, description: str, destino: str) -> int:
 
 
 async def get_recent_news(destino: str) -> list:
-    """Devuelve noticias relevantes para turistas con titulo, url y contexto."""
-    if not settings.NEWSAPI_KEY:
-        return []
+    """Devuelve una lista vacía para obligar a Gemini a generar las noticias (a petición del usuario)."""
+    return []
+
+async def _search_and_score(client, query: str, destino: str, from_date: str, language: str = "es") -> list:
+    """Busca en NewsAPI y devuelve artículos puntuados y filtrados."""
+    try:
+        resp = await client.get(NEWSAPI_URL, params={
+            "q": query,
+            "from": from_date,
+            "sortBy": "relevancy",
+            "pageSize": 20,
+            "language": language,
+        }, headers={"X-Api-Key": settings.NEWSAPI_KEY})
         
-    async with httpx.AsyncClient(timeout=10) as client:
-        try:
-            from_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-            resp = await client.get(NEWSAPI_URL, params={
-                "q": destino,
-                "searchIn": "title",
-                "from": from_date,
-                "sortBy": "relevancy",
-                "pageSize": 20,
-                "language": "es",
-            }, headers={"X-Api-Key": settings.NEWSAPI_KEY})
-            
-            if resp.status_code != 200:
-                return []
-                
-            data = resp.json()
-            articles = data.get("articles", [])
-            
-            # Puntuar y ordenar por relevancia turística
-            scored = []
-            for a in articles:
-                title = a.get("title", "")
-                desc = a.get("description", "")
-                url = a.get("url", "")
-                
-                if not title or not url:
-                    continue
-                    
-                score = _score_article(title, desc, destino)
-                if score > 0:
-                    scored.append({
-                        "titulo": title,
-                        "url": url,
-                        "contexto": f"{title} — {desc}" if desc else title,
-                        "score": score,
-                    })
-            
-            # Ordenar por puntuación (las más turísticas primero) y devolver top 3
-            scored.sort(key=lambda x: x["score"], reverse=True)
-            return [{"titulo": s["titulo"], "url": s["url"], "contexto": s["contexto"]} for s in scored[:3]]
-            
-        except Exception:
+        if resp.status_code != 200:
             return []
+            
+        data = resp.json()
+        articles = data.get("articles", [])
+        
+        scored = []
+        for a in articles:
+            title = a.get("title", "")
+            desc = a.get("description", "")
+            url = a.get("url", "")
+            
+            if not title or not url:
+                continue
+                
+            score = _score_article(title, desc, destino)
+            if score > 0:
+                scored.append({
+                    "titulo": title,
+                    "url": url,
+                    "contexto": f"{title} — {desc}" if desc else title,
+                    "score": score,
+                })
+        
+        scored.sort(key=lambda x: x["score"], reverse=True)
+        return [{"titulo": s["titulo"], "url": s["url"], "contexto": s["contexto"]} for s in scored]
+    except Exception:
+        return []

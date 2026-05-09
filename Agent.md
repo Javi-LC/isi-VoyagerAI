@@ -20,7 +20,11 @@ Actualmente, el **Frontend** se ha implementado utilizando una arquitectura Reac
 *   Navegación nativa con `History API` para volver entre vistas usando el historial del navegador.
 *   Modales de Política de Privacidad y Términos integrados sobre React Portals en el Footer.
 
-**Integración Frontend-Backend (Estado actual):** Por decisión de diseño para prototipado rápido, la vista del itinerario del frontend renderiza temporalmente datos estáticos (mock) a través del estado de React y la conexión API está deshabilitada en la interfaz gráfica.
+**Integración Frontend-Backend (Estado actual):** El frontend consume directamente los endpoints del backend (conectado exitosamente). Además, se han incorporado utilidades avanzadas:
+*   **Exportación a PDF:** Interfaz renderizada optimizada para impresión profesional (A4) sin encabezados del navegador y con diseño de línea temporal.
+*   **Exportación a Calendario (.ics):** Generación de eventos dinámicos compatibles con Google Calendar/Outlook a partir del itinerario devuelto por IA.
+*   **Gráficos Dinámicos:** Integración de `recharts` para mostrar el desglose interactivo del presupuesto del viaje.
+*   **Motor Inteligente de Noticias con NewsAPI:** NewsAPI nos devuelve las noticias mas relevantes de la fecha actual sobre el destino del viaje.
 
 Por el lado del **Backend**, se ha completado el 100% de la lógica pesada:
 *   **Orquestación Async:** Llamadas concurrentes funcionales a Open-Meteo y NewsAPI.

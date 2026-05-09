@@ -169,8 +169,8 @@ export default function TravelApp() {
         ) : itineraryData ? (
           <ItineraryView
             itineraryData={itineraryData}
-            showAlerts={showAlerts}
-            onToggleAlerts={handleToggleAlerts}
+            showAlertas={showAlerts}
+            onToggleAlertas={handleToggleAlerts}
             onBack={handleBackToPlanner}
           />
         ) : null

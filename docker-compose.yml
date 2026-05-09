@@ -24,6 +24,7 @@ services:
     container_name: voyager-frontend
     environment:
       - VITE_BACKEND_URL=http://voyager-backend:8000
+      - VITE_MAPBOX_TOKEN=${VITE_MAPBOX_TOKEN}
     ports:
       - "5173:5173"
     command:
