@@ -10,8 +10,8 @@ export interface TripSummary {
 
 const API_BASE_CANDIDATES = [
   '/api/v1',
-  'http://localhost:8001/api/v1',
-  'http://127.0.0.1:8001/api/v1',
+  'http://localhost:8000/api/v1',
+  'http://127.0.0.1:8000/api/v1',
 ];
 const FALLBACK_STATUS_CODES = new Set([502, 503, 504]);
 
